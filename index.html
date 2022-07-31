@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>dashes animation</title>
+	<script defer src="https://code.jquery.com/jquery-3.6.0.slim.min.js"></script>
+
+	<script defer src="animation.js"></script>
+
+	<style type="text/css">
+		body {
+			background: #111;
+		}
+		.dashes {
+			width: 450px;
+			height: 600px;
+			--w: 30;
+			--h: 40;
+			display: grid;
+			grid-template-columns: repeat(var(--w), 1fr);
+			grid-template-rows: repeat(var(--h), 1fr);
+			outline: 1px solid;
+		}
+		.dashes>* {
+			height: 90%;
+			width:2px;
+			background: #f30;
+			margin: auto;
+			//transition: .3s;
+		}
+	</style>
+</head>
+<body>
+	<div class="dashes"></div>
+</body>
+</html>
