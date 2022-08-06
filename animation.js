@@ -10,11 +10,12 @@ for (let i=0; i<n; i++) {
 };
 
 const $dash=$el.children();
-let targets=[], t0=performance.now();
+let touches=[], t0=performance.now();
 
 $win.on('mousemove touchstart touchmove', function setTarg(e){
-	if (!e.touches) targets=[{x: e.clientX, y: e.clientY}]
-	else targets=Array.from(e.touches[i]);
+	if (!e.touches) touches=[e]
+	else touches=Array.from(e.touches);
+//	console.log(e.touches)
 })
 
 requestAnimationFrame(function anim(){
@@ -43,9 +44,9 @@ requestAnimationFrame(function anim(){
 
 		t0=t;
 
-	 	targets.forEach(target=>{
-			const dx=targets[0].x - x,
-						dy=targets[0].y - y,
+	 	touches.forEach(touch=>{
+			const dx=touch.clientX - x,
+						dy=touch.clientY - y,
 						r2=(dx*dx+dy*dy)/hw/100,
 
 					 a1=Math.atan(1/r2)*1.2,//f=10*w0*h0/(dx*dx+dy*dy),
@@ -60,7 +61,7 @@ requestAnimationFrame(function anim(){
 		dash.style.transform=`rotate(${dash._angle=a0+f*dt}rad)`
 	 }
 	}
-	targets.length = 0;
+	touches.length = 0;
 })
 function angleTo(a1, a2) {//a1 to a2
 	return (a2-a1+PI32)%PI-PI2;
