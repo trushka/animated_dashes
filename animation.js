@@ -9,7 +9,7 @@ for (let i=0; i<n; i++) {
 	$el.append('<div/>')
 };
 
-const $dash=$el.children();
+const $dash=$el.children().prop({_f:0, _a:0});
 let touches=[], t0=performance.now();
 
 $win.on('mousemove touchstart touchmove', function setTarg(e){
@@ -30,7 +30,7 @@ requestAnimationFrame(function anim(){
 				x0=box.left, y0=box.top,
 				w0=box.width/nx,
 				h0=box.height/ny,
-				hw=h0*w0/4;
+				hw=h0*w0/2;
 
 	for (let j=0; j<ny; j++) {
 	 const y=y0+h0*(j+.5);
@@ -38,16 +38,16 @@ requestAnimationFrame(function anim(){
 	 for (let i=0; i<nx; i++) {
 		const x=x0+w0*(i+.5),
 					dash=$dash[j*nx+i],
-					a0=dash._angle||0;
+					a0=dash._a;
 	
-		let f=angleTo(a0, .16)*.2;
+		let f=angleTo(a0, .17)*.8;
 
 		t0=t;
 
 	 	touches.forEach(touch=>{
 			const dx=touch.clientX - x,
 						dy=touch.clientY - y,
-						r2=(dx*dx+dy*dy)/hw/200,
+						r2=Math.abs(dx*dx+dy*dy-hw)/hw/200,
 
 					 a1=Math.atan(1/r2)*2,//f=10*w0*h0/(dx*dx+dy*dy),
 					 //a1=Math.min(f, PI2)+.16,
@@ -56,9 +56,12 @@ requestAnimationFrame(function anim(){
 					 //targ=dash._angle=a1+da*(Math.cos(da))*(1-f*r2),
 					 //targ=-Math.atan(dx/dy)*(1-f*r2),
 					 targ0=dash._trg||0;
-			f+=da*(1-Math.cos(da+da))/r2+angleTo(a0, a1)/4;
+			f+=da*(1-Math.cos(da+da))/r2*2+angleTo(a0, a1);//
 	 	})
-		dash.style.transform=`rotate(${dash._angle=a0+f*dt}rad)`
+	 	dash._f*=Math.pow(.8, dt);
+	 	dash._f+=(f-dash._f)*dt*.3;
+	 	dash._f=Math.atan(dash._f);
+		dash.style.transform=`rotate(${dash._a=a0+dash._f*dt}rad)`
 	 }
 	}
 	touches.length = 0;
