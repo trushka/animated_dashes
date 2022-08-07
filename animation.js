@@ -3,7 +3,7 @@ const $win=$(window),
 			nx=$el.css('--w'),
 			ny=$el.css('--h'),
 			n=nx*ny,
-			PI=Math.PI, PI2=PI/2, PIx2=PI*2, PI32=PI*1.5;
+			PI=Math.PI, PI2=PI/2, PIx2=PI*2, PI52=PI*10000.5;
 
 for (let i=0; i<n; i++) {
 	$el.append('<div/>')
@@ -40,23 +40,23 @@ requestAnimationFrame(function anim(){
 					dash=$dash[j*nx+i],
 					a0=dash._angle||0;
 	
-		let f=angleTo(a0, .16)*.05;
+		let f=angleTo(a0, .16)*.2;
 
 		t0=t;
 
 	 	touches.forEach(touch=>{
 			const dx=touch.clientX - x,
 						dy=touch.clientY - y,
-						r2=(dx*dx+dy*dy)/hw/100,
+						r2=(dx*dx+dy*dy)/hw/200,
 
-					 a1=Math.atan(1/r2)*1.2,//f=10*w0*h0/(dx*dx+dy*dy),
+					 a1=Math.atan(1/r2)*2,//f=10*w0*h0/(dx*dx+dy*dy),
 					 //a1=Math.min(f, PI2)+.16,
 					 a2=-Math.atan(dx/dy),
-					 da=angleTo(a1, a2)
+					 da=angleTo(a0, a2),
 					 //targ=dash._angle=a1+da*(Math.cos(da))*(1-f*r2),
 					 //targ=-Math.atan(dx/dy)*(1-f*r2),
 					 targ0=dash._trg||0;
-			f+=angleTo(a0, a1);
+			f+=da*(1-Math.cos(da+da))/r2+angleTo(a0, a1)/4;
 	 	})
 		dash.style.transform=`rotate(${dash._angle=a0+f*dt}rad)`
 	 }
@@ -64,6 +64,6 @@ requestAnimationFrame(function anim(){
 	touches.length = 0;
 })
 function angleTo(a1, a2) {//a1 to a2
-	return (a2-a1+PI32)%PI-PI2;
+	return (a2-a1+PI52)%PI-PI2;
 	//return a<-PI2 ? a+PI : a>PI2? a-PI : a;
 }
