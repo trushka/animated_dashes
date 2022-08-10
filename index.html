@@ -14,15 +14,20 @@
 		}
 		.dashes {
 			width: 450px;
-			height: 600px;
 			--w: 30;
 			--h: 40;
+/*			height: 600px;
 			display: grid;
 			grid-template-columns: repeat(var(--w), 1fr);
 			grid-template-rows: repeat(var(--h), 1fr);
-			outline: 1px solid;
+			outline: 1px solid;*/
 		}
-		.dashes>* {
+		.dashes path {
+			fill: none;
+			stroke:  #f30;
+			stroke-width: 2px;
+		}
+		._dashes>* {
 			height: 90%;
 			width:2px;
 			background: #f30;
@@ -32,6 +37,6 @@
 	</style>
 </head>
 <body>
-	<div class="dashes"></div>
+	<svg class="dashes"></svg>
 </body>
 </html>

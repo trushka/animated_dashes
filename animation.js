@@ -1,16 +1,28 @@
 const $win=$(window),
-			$el=$('.dashes'),
-			nx=$el.css('--w'),
-			ny=$el.css('--h'),
-			n=nx*ny,
+			$el=$('.dashes').html('<path/>'),
 			PI=Math.PI, PI2=PI/2, PIx2=PI*2, PI52=PI*10000.5;
 
-for (let i=0; i<n; i++) {
-	$el.append('<div/>')
-};
 
-const $dash=$el.children().prop({_f:0, _a:0});
-let touches=[], t0=performance.now();
+const $path=$('path', $el);
+let touches=[], t0=performance.now(),
+	dashes=[], nx, ny, n, size;
+
+$win.on('resize', e=>{
+	nx=$el.css('--w');
+	ny=$el.css('--h');
+
+	if (!nx || !ny) return;
+
+	const width=$el[0].clientWidth;
+	$el.attr({width: width, height: width/nx*ny});
+	size=$el.css('--size')||.9;
+
+	if (n==(n=nx*ny)) return;
+
+	for (let i=0; i<n; i++) {
+		dashes[i]={a:0, v:0}
+	};
+}).resize()
 
 $win.on('mousemove touchstart touchmove', function setTarg(e){
 	if (!e.touches) touches=[e]
@@ -21,7 +33,7 @@ $win.on('mousemove touchstart touchmove', function setTarg(e){
 requestAnimationFrame(function anim(){
 	requestAnimationFrame(anim);
 
-	//if (!targets[0]) return;
+	if (!n) return;
 
 	const t=performance.now(),
 				dt=Math.min(50, t-t0)*.003,
@@ -30,17 +42,20 @@ requestAnimationFrame(function anim(){
 				x0=box.left, y0=box.top,
 				w0=box.width/nx,
 				h0=box.height/ny,
-				hw=h0*w0/2;
+				hw=h0*w0/2,
+				r0=w0/2*size;
+
+	let path='';				
 
 	for (let j=0; j<ny; j++) {
 	 const y=y0+h0*(j+.5);
 
 	 for (let i=0; i<nx; i++) {
 		const x=x0+w0*(i+.5),
-					dash=$dash[j*nx+i],
-					a0=dash._a;
+					dash=dashes[j*nx+i];
 	
-		let f=angleTo(a0, .17)*.8;
+		let a0=dash.a;
+				f=angleTo(a0, .17)*.8;
 
 		t0=t;
 
@@ -58,12 +73,17 @@ requestAnimationFrame(function anim(){
 					 targ0=dash._trg||0;
 			f+=da*(1-Math.cos(da+da))/r2*2+angleTo(a0, a1);//
 	 	})
-	 	dash._f*=Math.pow(.8, dt);
-	 	dash._f+=(f-dash._f)*dt*.3;
-	 	dash._f=Math.atan(dash._f);
-		dash.style.transform=`rotate(${dash._a=a0+dash._f*dt}rad)`
+	 	dash.v*=Math.pow(.8, dt);
+	 	dash.v+=(f-dash.v)*dt*.3;
+	 	dash.v=Math.atan(dash.v);
+	 	dash.a=a0+=dash.v*dt;
+		//dash.style.transform=`rotate(${}rad)`;
+		dash.dx=-r0*Math.sin(a0);
+		dash.dy=r0*Math.cos(a0);
+		path+=`M${x-x0-dash.dx} ${y-y0-dash.dy} L${x-x0+dash.dx} ${y-y0+dash.dy}, `
 	 }
 	}
+	$path.attr('d', path+'z');
 	touches.length = 0;
 })
 function angleTo(a1, a2) {//a1 to a2
