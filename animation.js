@@ -5,7 +5,7 @@ const $win=$(window),
 
 
 const $path=$('path', $el);
-let touches=[], t0=performance.now(),
+let touches=[], lastTouches=[], t0=performance.now(),
 	dashes=[], nx, ny, n, size, thickness;
 
 $win.on('resize', e=>{
@@ -28,9 +28,14 @@ $win.on('resize', e=>{
 	};
 }).resize()
 
-$win.on('mousemove touchstart touchmove', function setTarg(e){
-	if (!e.touches) touches=[e]
-	else touches=Array.from(e.touches);
+$win.on('mousemove touchstart touchmove', (e)=>{
+	const et=e.touches||[e];
+	for (var i = 0; i < et.length; i++) {
+		const id=et[i].identifer||0;
+
+		touches[id]={x:et[i].clientX, y:et[i].clientY};
+		if (!lastTouches[id]) lastTouches[id]=touches[id];
+	}
 //	console.log(e.touches)
 })
 
@@ -40,18 +45,32 @@ requestAnimationFrame(function anim(){
 	if (!n) return;
 
 	const t=performance.now(),
-				dt=Math.min(50, t-t0)*.003,
+		dt=Math.min(50, t-t0)*.003,
 
-				box=$el[0].getBoundingClientRect(),
-				x0=box.left, y0=box.top,
-				w0=box.width/nx,
-				h0=box.height/ny,
-				hw=h0*w0/3,
-				r0=w0/2*size,
-				scale=hw*400;
+		box=$el[0].getBoundingClientRect(),
+		x0=box.left, y0=box.top,
+		w0=box.width/nx,
+		h0=box.height/ny,
+		hw=h0*w0/3,
+		r0=w0/2*size,
+		scale=hw*500,
+		inView=y0<innerHeight && box.bottom>0 ;
 
-	ctx.clearRect(0,0, box.width, box.height)
-	ctx.beginPath();				
+	if (inView) {
+		ctx.clearRect(0,0, box.width, box.height)
+		ctx.beginPath();
+	}
+	lastTouches.forEach((touch0, i)=>{
+		const touch=touches[i], size=w0*10, advance=.28/dt;
+		if (touch) {
+			lastTouches[i]={x:touch.x, y:touch.y};
+			touch.x+=Math.atan((touch.x-touch0.x)/size*advance)*size;
+			touch.y+=Math.atan((touch.y-touch0.y)/size*advance)*size;
+		} else {
+			//touches[i]=touch0;
+			delete lastTouches[i]
+		}
+	})			
 
 	for (let j=0; j<ny; j++) {
 	 const y=y0+h0*(j+.5);
@@ -61,25 +80,26 @@ requestAnimationFrame(function anim(){
 					dash=dashes[j*nx+i];
 	
 		let a0=dash.a;
-				f=angleTo(a0, .17)*.8;
+			f=angleTo(a0, .17)*.6;
 
 		t0=t;
 
-	 	touches.forEach(touch=>{
-			const dx=touch.clientX - x,
-						dy=touch.clientY - y,
-						dy2=dy*dy,
-						r02=dx*dx+dy2,
-						r2=Math.abs(r02-hw)/scale,
+	 	if (inView) touches.forEach((touch, i)=>{
+			const dx=touch.x - x,
+				dy=touch.y - y,
+				dy2=dy*dy,
+				r02=dx*dx+dy2,
+				r2=Math.abs(r02+hw)/scale,
 
-					 a1=Math.atan(1/r2),//*1.5//f=10*w0*h0/(dx*dx+dy*dy),
-					 //a1=Math.min(f, PI2)+.16,
-					 a2=-Math.atan(dx/dy),
-					 da=angleTo(a0, a2),//),
-					 //targ=dash._angle=a1+da*(Math.cos(da))*(1-f*r2),
-					 //targ=-Math.atan(dx/dy)*(1-f*r2),
-					 targ0=dash._trg||0;
-			f+=da*(1-Math.cos(da+da))/r2+angleTo(a0, a1*a1)*6;//
+				a1=Math.atan(1.5/r2)*.9,////f=10*w0*h0/(dx*dx+dy*dy),
+				//a1=Math.min(f, PI2)+.16,
+				a2=-Math.atan(dx/dy),
+				da=angleTo(a0, a2),//),
+				//targ=dash._angle=a1+da*(Math.cos(da))*(1-f*r2),
+				//targ=-Math.atan(dx/dy)*(1-f*r2),
+				targ0=dash._trg||0;
+			f+=da/r2+angleTo(a0, a1*a1)*8;//*(1-Math.cos(da+da))
+			//delete touches[i]
 	 	})
 	 	dash.v*=Math.pow(.8, dt);
 	 	dash.v+=(f-dash.v)*dt*.3;
@@ -89,11 +109,13 @@ requestAnimationFrame(function anim(){
 		dash.dx=-r0*Math.sin(a0);
 		dash.dy=r0*Math.cos(a0);
 
+		if (!inView) continue;
+
 		ctx.moveTo(x-x0-dash.dx, y-y0-dash.dy);
 		ctx.lineTo(x-x0+dash.dx, y-y0+dash.dy);
 	 }
 	}
-	ctx.stroke();
+	if (inView) ctx.stroke();
 	touches.length = 0;
 })
 function angleTo(a1, a2) {//a1 to a2
