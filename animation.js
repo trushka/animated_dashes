@@ -30,13 +30,14 @@ $win.on('resize', e=>{
 
 $win.on('mousemove touchstart touchmove', (e)=>{
 	const et=e.touches||[e];
+	e.identifier=-1
 	for (var i = 0; i < et.length; i++) {
-		const id=et[i].identifer||0;
+		const id=+et[i].identifier+1;
+	console.log(et[i])
 
 		touches[id]={x:et[i].clientX, y:et[i].clientY};
 		if (!lastTouches[id]) lastTouches[id]=touches[id];
 	}
-//	console.log(e.touches)
 })
 
 requestAnimationFrame(function anim(){
