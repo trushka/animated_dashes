@@ -33,7 +33,7 @@ $win.on('mousemove touchstart touchmove', (e)=>{
 	e.identifier=-1
 	for (var i = 0; i < et.length; i++) {
 		const id=+et[i].identifier+1;
-	console.log(et[i])
+		//console.log(et[i])
 
 		touches[id]={x:et[i].clientX, y:et[i].clientY};
 		if (!lastTouches[id]) lastTouches[id]=touches[id];
