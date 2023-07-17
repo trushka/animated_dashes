@@ -13,17 +13,15 @@
 			background: #111;
 		}
 		.dashes {
-			width: 450px;
-			--w: 30;
-			--h: 40;
-			color: #fff;
-			--thickness: 1.5;
+			display: block;
+			width: -moz-available;
+			width: -webkit-fill-available;
+			width: stretch;
+			color: #e3ff90;
+			line-height: 0.1;
 			--size: 0.7;
-			/*			height: 600px;
-			display: grid;
-			grid-template-columns: repeat(var(--w), 1fr);
-			grid-template-rows: repeat(var(--h), 1fr);
-			outline: 1px solid;*/
+			height: 600px;
+			margin-left: min(20%, 200px);
 		}
 		.dashes path {
 			fill: none;
