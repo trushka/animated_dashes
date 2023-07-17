@@ -1,5 +1,5 @@
 const $win=$(window),
-			$el=$('.dashes').html('<path/>'),
+			$el=$('.dashes'),
 			ctx=$el[0].getContext('2d'),
 			PI=Math.PI, PI2=PI/2, PIx2=PI*2, PI52=PI*10000.5, deg=PI/180;
 
@@ -38,12 +38,12 @@ function resize() {
 //$win.on('resize', resize);
 
 function chTouches(e, del) {
-	const id = e.pointerId || e.identifier;
+	const id = e.identifier || e.pointerId || 0;
 
-	if (del || e.type=='pointerleave') delete touches[id];
+	if (del || e.type=='pointerleave') delete touches[id]
 	else touches[id]={x: e.clientX, y: e.clientY};
 }
-$win.on('pointerdown pointerleave pointermove', chTouches)
+$win.on('mousedown pointerleave pointermove', chTouches)
 .on('touchmove touchcancel touchend', e=>{
 	Array.from(e.changedTouches).forEach(touch=>{
 		chTouches(touch, e.type!='touchmove')
