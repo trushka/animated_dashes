@@ -43,7 +43,7 @@ function chTouches(e, del) {
 	if (del || e.type=='pointerleave') delete touches[id]
 	else touches[id]={x: e.clientX, y: e.clientY};
 }
-$win.on('mousedown pointerleave pointermove', chTouches)
+$win.on('pointerleave pointermove', chTouches)
 .on('touchmove touchcancel touchend', e=>{
 	Array.from(e.changedTouches).forEach(touch=>{
 		chTouches(touch, e.type!='touchmove')
