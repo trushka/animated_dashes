@@ -4,11 +4,11 @@ const $win=$(window),
 			PI=Math.PI, PI2=PI/2, PIx2=PI*2, PI52=PI*10000.5, deg=PI/180;
 
 
-let touches=[], lastTouches=[], t0=0, lastCSS='',
+let touches=[], lastTouches=[], rects, t0=0, lastCSS='',
 	rot=[], nx, ny, n, size0, size, thickness, dpr, box;
 
 function resize() {
-	const css = $el.css(['fontSize', 'lineHeight', '--size', 'color']);
+	const css = $el.css(['fontSize', 'lineHeight', '--size', 'color', '--rects']);
 
 	size0 = parseFloat(css.fontSize);
 	box = $el[0].getBoundingClientRect();
@@ -19,6 +19,12 @@ function resize() {
 
 	nx=Math.ceil(width/size0);
 	ny=Math.ceil(height/size0);
+
+	rects = css['--rects'].split(',')
+	 .map(el=>el.trim().split(' ').map((val, i)=>{
+	 	const n = i<3? nx : ny;
+	 	return i ? (+val + n) % n : val
+	 }));
 
 	$el[0].width = width*dpr;
 	$el[0].height = height*dpr;
@@ -43,7 +49,7 @@ function chTouches(e, del) {
 	if (del || e.type=='pointerleave') delete touches[id]
 	else touches[id]={x: e.clientX, y: e.clientY};
 }
-$win.on('pointerleave pointermove', chTouches)
+$win.on('pointerdown pointerleave pointermove', chTouches)
 .on('touchmove touchcancel touchend', e=>{
 	Array.from(e.changedTouches).forEach(touch=>{
 		chTouches(touch, e.type!='touchmove')
